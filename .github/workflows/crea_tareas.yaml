@@ -1,0 +1,47 @@
+name: Crear sub-issues 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      parent_id:
+        description: "Número del issue padre (ej: 15)"
+        required: true
+      entity:
+        description: "Nombre de la entidad (ej: Productos)"
+        required: true
+      subtasks:
+        description: "Lista de subtareas separadas por coma"
+        required: false
+        default: "modelo,vista,modelo-vista,persistencia local,botón de acceso"
+
+jobs:
+  create_subissues:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Crear sub-issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PARENT: ${{ github.event.inputs.parent_id }}
+          ENTITY: ${{ github.event.inputs.entity }}
+          SUBTASKS: ${{ github.event.inputs.subtasks }}
+        run: |
+          IFS=',' read -ra TASKS <<< "$SUBTASKS"
+          echo "Creando subtareas para $ENTITY (#$PARENT)..."
+          for TASK in "${TASKS[@]}"; do
+            OUTPUT=$(gh issue create \
+            --repo "$REPO" \
+            --title "Crear ${TASK} para ${ENTITY}" \
+            --body "Sub-issue de #$PARENT" \
+            --label "subtask")
+          ISSUE_NUMBER=$(echo "$OUTPUT" | grep -oE '#[0-9]+' | head -1 | tr -d '#')
+            gh issue comment $PARENT --body "- [ ] #$ISSUE_NUMBER Crear ${TASK} para ${ENTITY}"
+          done
