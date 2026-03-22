@@ -1,12 +1,17 @@
 /home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/Application.java
 /home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/config/Initializer.java
+/home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/controller/ApartmentController.java
 /home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/controller/RoleController.java
 /home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/controller/UserController.java
+/home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/dto/ApartmentDto.java
 /home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/dto/RoleDto.java
 /home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/dto/UserDto.java
+/home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/model/Apartment.java
 /home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/model/Role.java
 /home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/model/User.java
+/home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/repository/ApartmentRepo.java
 /home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/repository/RoleRepo.java
 /home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/repository/UserRepo.java
+/home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/service/ApartmentService.java
 /home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/service/RoleService.java
 /home/sebastian/portafolio/RoomOps-back/src/main/java/com/hoteleria/roomsOps/service/UserService.java
