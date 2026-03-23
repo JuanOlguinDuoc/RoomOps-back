@@ -36,25 +36,21 @@ jobs:
           SUBTASKS: ${{ github.event.inputs.subtasks }}
         run: |
           IFS=',' read -ra TASKS <<< "$SUBTASKS"
-
           echo "Creando subtareas backend para $MODEL (#$PARENT)..."
 
           for TASK in "${TASKS[@]}"; do
             TITLE="Crear ${TASK} de ${MODEL}"
 
-            BODY=$(cat <<EOF
-Sub-issue backend para #$PARENT
+            BODY="Sub-issue backend para #$PARENT
 
-Modelo: $MODEL  
+Modelo: $MODEL
 Tipo: $TASK
 
 Checklist sugerido:
 - [ ] Implementación básica
 - [ ] Validaciones
 - [ ] Integración con capas relacionadas
-- [ ] Tests básicos
-EOF
-)
+- [ ] Tests básicos"
 
             OUTPUT=$(gh issue create \
               --repo "$REPO" \
