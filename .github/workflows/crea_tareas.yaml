@@ -40,13 +40,10 @@ jobs:
           echo "Creando subtareas backend para $MODEL (#$PARENT)..."
 
           for TASK in "${TASKS[@]}"; do
-
             TITLE="Crear ${TASK} de ${MODEL}"
 
-            OUTPUT=$(gh issue create \
-              --repo "$REPO" \
-              --title "$TITLE" \
-              --body "Sub-issue backend para #$PARENT
+            BODY=$(cat <<EOF
+Sub-issue backend para #$PARENT
 
 Modelo: $MODEL  
 Tipo: $TASK
@@ -56,7 +53,13 @@ Checklist sugerido:
 - [ ] Validaciones
 - [ ] Integración con capas relacionadas
 - [ ] Tests básicos
-" \
+EOF
+)
+
+            OUTPUT=$(gh issue create \
+              --repo "$REPO" \
+              --title "$TITLE" \
+              --body "$BODY" \
               --label "backend,$TASK")
 
             ISSUE_NUMBER=$(echo "$OUTPUT" | grep -oE '#[0-9]+' | head -1 | tr -d '#')
