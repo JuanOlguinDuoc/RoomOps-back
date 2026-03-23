@@ -28,14 +28,15 @@ jobs:
         run: |
           echo "Creando feature completa para $MODEL..."
 
-          # 1. Crear issue padre
-          PARENT_OUTPUT=$(gh issue create \
+          # 1. Crear issue padre y obtener la URL completa
+          PARENT_URL=$(gh issue create \
             --repo "$REPO" \
             --title "$MODEL" \
             --body "Feature backend para $MODEL" \
             --label "backend,feature")
-
-          PARENT_NUMBER=$(echo "$PARENT_OUTPUT" | grep -oE '#[0-9]+' | head -1 | tr -d '#')
+          
+          # Extraer solo el número del final de la URL (ej: .../issues/123 -> 123)
+          PARENT_NUMBER=$(echo "$PARENT_URL" | grep -oE '[0-9]+$')
 
           echo "Issue padre creado: #$PARENT_NUMBER"
 
@@ -45,19 +46,16 @@ jobs:
           # 3. Crear sub-issues
           for TASK in "${TASKS[@]}"; do
             TITLE="[${MODEL}] Crear ${TASK}"
+            BODY="Sub-issue de #$PARENT_NUMBER. Entidad: $MODEL. Capa: $TASK"
 
-            BODY="Sub-issue de #$PARENT_NUMBER
-
-Entidad: $MODEL
-Capa: $TASK"
-
-            OUTPUT=$(gh issue create \
+            SUB_URL=$(gh issue create \
               --repo "$REPO" \
               --title "$TITLE" \
               --body "$BODY" \
               --label "backend,$TASK")
+            
+            SUB_NUMBER=$(echo "$SUB_URL" | grep -oE '[0-9]+$')
 
-            ISSUE_NUMBER=$(echo "$OUTPUT" | grep -oE '#[0-9]+' | head -1 | tr -d '#')
-
-            gh issue comment $PARENT_NUMBER --body "- [ ] #$ISSUE_NUMBER $TITLE"
+            # 4. Añadir el checklist al issue padre
+            gh issue comment "$PARENT_NUMBER" --repo "$REPO" --body "- [ ] #$SUB_NUMBER $TITLE"
           done
