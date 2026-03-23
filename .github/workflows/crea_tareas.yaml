@@ -1,4 +1,5 @@
-name: Crear sub-issues 
+name: Crear sub-issues backend (Java MVC)
+
 permissions:
   contents: write
   issues: write
@@ -10,38 +11,55 @@ on:
       parent_id:
         description: "Número del issue padre (ej: 15)"
         required: true
-      entity:
-        description: "Nombre de la entidad (ej: Productos)"
+      model:
+        description: "Nombre del modelo (ej: Producto)"
         required: true
       subtasks:
-        description: "Lista de subtareas separadas por coma"
+        description: "Subtareas personalizadas (opcional)"
         required: false
-        default: "modelo,vista,modelo-vista,persistencia local,botón de acceso"
+        default: "modelo,repository,service,controller,dto,tests"
 
 jobs:
-  create_subissues:
+  create_backend_subissues:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Crear sub-issues
+      - name: Crear sub-issues backend
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           PARENT: ${{ github.event.inputs.parent_id }}
-          ENTITY: ${{ github.event.inputs.entity }}
+          MODEL: ${{ github.event.inputs.model }}
           SUBTASKS: ${{ github.event.inputs.subtasks }}
         run: |
           IFS=',' read -ra TASKS <<< "$SUBTASKS"
-          echo "Creando subtareas para $ENTITY (#$PARENT)..."
+
+          echo "Creando subtareas backend para $MODEL (#$PARENT)..."
+
           for TASK in "${TASKS[@]}"; do
+
+            TITLE="Crear ${TASK} de ${MODEL}"
+
             OUTPUT=$(gh issue create \
-            --repo "$REPO" \
-            --title "Crear ${TASK} para ${ENTITY}" \
-            --body "Sub-issue de #$PARENT" \
-            --label "subtask")
-          ISSUE_NUMBER=$(echo "$OUTPUT" | grep -oE '#[0-9]+' | head -1 | tr -d '#')
-            gh issue comment $PARENT --body "- [ ] #$ISSUE_NUMBER Crear ${TASK} para ${ENTITY}"
+              --repo "$REPO" \
+              --title "$TITLE" \
+              --body "Sub-issue backend para #$PARENT
+
+Modelo: $MODEL  
+Tipo: $TASK
+
+Checklist sugerido:
+- [ ] Implementación básica
+- [ ] Validaciones
+- [ ] Integración con capas relacionadas
+- [ ] Tests básicos
+" \
+              --label "backend,$TASK")
+
+            ISSUE_NUMBER=$(echo "$OUTPUT" | grep -oE '#[0-9]+' | head -1 | tr -d '#')
+
+            gh issue comment $PARENT --body "- [ ] #$ISSUE_NUMBER $TITLE"
           done
