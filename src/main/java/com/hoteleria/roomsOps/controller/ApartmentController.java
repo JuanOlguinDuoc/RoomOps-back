@@ -29,11 +29,11 @@ public class ApartmentController {
         Map<String,Object> resp = new HashMap<>();
         try{
             ApartmentDto created = apartmentService.createApartment(dto);
-            resp.put("message", "Apartamento creado correctamente");
+            resp.put("mensaje", "Apartamento creado correctamente");
             resp.put("apartment", created);
             return ResponseEntity.status(HttpStatus.CREATED).body(resp);
         } catch (Exception e){
-            resp.put("message", "Error al crear apartamento");
+            resp.put("mensaje", "Error al crear apartamento");
             resp.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);
         }
@@ -45,7 +45,7 @@ public class ApartmentController {
         if (dto == null) {
             return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(Map.of("message","Apartamento no encontrado"));
+                .body(Map.of("mensaje","Apartamento no encontrado"));
         }
         return ResponseEntity.ok(dto);
     }
@@ -55,12 +55,12 @@ public class ApartmentController {
         try{
             ApartmentDto updated = apartmentService.updateApartment(id, dto);
             return ResponseEntity.ok(
-                Map.of("message","Apartamento actualizado","apartment", updated)
+                Map.of("mensaje","Apartamento actualizado","apartment", updated)
             );
         } catch (Exception e){
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message","Error al actualizar apartamento","error", e.getMessage()));
+                .body(Map.of("mensaje","Error al actualizar apartamento","error", e.getMessage()));
         }
     }
 
@@ -69,12 +69,12 @@ public class ApartmentController {
         try {
             ApartmentDto updated = apartmentService.updateEstado(id, activo);
             return ResponseEntity.ok(
-                Map.of("message", "Estado actualizado", "apartment", updated)
+                Map.of("mensaje", "Estado actualizado", "apartment", updated)
             );
         } catch (Exception e){
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message","Error al cambiar estado","error", e.getMessage()));
+                .body(Map.of("mensaje","Error al cambiar estado","error", e.getMessage()));
         }
     }
 

@@ -29,11 +29,11 @@ public class RoleController {
         Map<String,Object> resp = new HashMap<>();
         try{
             RoleDto created = roleService.createRole(dto);
-            resp.put("message", "Rol generado correctamente");
+            resp.put("mensaje", "Rol generado correctamente");
             resp.put("role", created);
             return ResponseEntity.status(HttpStatus.CREATED).body(resp);
         } catch (Exception e){
-            resp.put("message", "Error al crear rol");
+            resp.put("mensaje", "Error al crear rol");
             resp.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);
         }
@@ -45,7 +45,7 @@ public class RoleController {
         if (dto == null) {
             return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(Map.of("message","Rol no encontrado"));
+                .body(Map.of("mensaje","Rol no encontrado"));
         }
         return ResponseEntity.ok(dto);
     }
@@ -54,11 +54,11 @@ public class RoleController {
     public ResponseEntity<Object> updateRole(@PathVariable Long id, @RequestBody RoleDto dto){
         try{
             RoleDto updated = roleService.updateRole(id, dto);
-            return ResponseEntity.ok(Map.of("message","Rol actualizado","role", updated));
+            return ResponseEntity.ok(Map.of("mensaje","Rol actualizado","role", updated));
         } catch (Exception e){
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message","Error al actualizar rol","error", e.getMessage()));
+                .body(Map.of("mensaje","Error al actualizar rol","error", e.getMessage()));
         }
     }
 
@@ -66,16 +66,16 @@ public class RoleController {
     public ResponseEntity<Object> deleteRole(@PathVariable Long id){
         try{
             roleService.deleteRole(id);
-            return ResponseEntity.ok(Map.of("message","Rol eliminado"));
+            return ResponseEntity.ok(Map.of("mensaje","Rol eliminado"));
         } catch (Exception e){
-            if (e.getMessage() != null && e.getMessage().contains("not found")) {
+            if (e.getMessage() != null && e.getMessage().toLowerCase().contains("no encontrado")) {
                 return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message","Rol no encontrado","error", e.getMessage()));
+                    .body(Map.of("mensaje","Rol no encontrado","error", e.getMessage()));
             }
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message","Error al eliminar rol","error", e.getMessage()));
+                .body(Map.of("mensaje","Error al eliminar rol","error", e.getMessage()));
         }
     }
 }

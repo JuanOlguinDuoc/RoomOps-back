@@ -28,11 +28,11 @@ public class StatusController {
         Map<String,Object> resp = new HashMap<>();
         try{
             StatusDto created = service.createStatus(dto);
-            resp.put("message", "Estado generado correctamente");
+            resp.put("mensaje", "Estado generado correctamente");
             resp.put("status", created);
             return ResponseEntity.status(HttpStatus.CREATED).body(resp);
         } catch (Exception e){
-            resp.put("message", "Error al crear estado");
+            resp.put("mensaje", "Error al crear estado");
             resp.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);    
         }
@@ -44,7 +44,7 @@ public class StatusController {
         if (dto == null) {
             return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(Map.of("message","Estado no encontrado"));
+                .body(Map.of("mensaje","Estado no encontrado"));
         }
         return ResponseEntity.ok(dto);
     }
@@ -53,11 +53,11 @@ public class StatusController {
     public ResponseEntity<Object> updateStatus(@PathVariable Long id, @RequestBody StatusDto dto){
         try{
             StatusDto updated = service.updateStatus(id, dto);
-            return ResponseEntity.ok(Map.of("message","Estado actualizado","status", updated));
+            return ResponseEntity.ok(Map.of("mensaje","Estado actualizado","status", updated));
         } catch (Exception e){
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message","Error al actualizar estado", "error", e.getMessage()));
+                .body(Map.of("mensaje","Error al actualizar estado", "error", e.getMessage()));
         }
     }
 
@@ -65,11 +65,11 @@ public class StatusController {
     public ResponseEntity<Map<String,String>> deleteStatus(@PathVariable Long id){
         try{
             service.deleteStatus(id);
-            return ResponseEntity.ok(Map.of("message","Estado eliminado correctamente"));
+            return ResponseEntity.ok(Map.of("mensaje","Estado eliminado correctamente"));
         } catch (Exception e){
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message","Error al eliminar estado", "error", e.getMessage()));
+                .body(Map.of("mensaje","Error al eliminar estado", "error", e.getMessage()));
         }
     }
 }

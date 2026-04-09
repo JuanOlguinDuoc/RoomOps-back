@@ -1,9 +1,18 @@
 package com.hoteleria.roomsOps.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import com.hoteleria.roomsOps.model.ChecklistItem;
 import com.hoteleria.roomsOps.model.Task;
 
 @Data
@@ -15,9 +24,23 @@ public class TaskDto {
     private Long id;
     private String titulo;
     private String descripcion;
+
+    @JsonProperty("apartamentoId")
+    @JsonAlias("apartmentId")
     private Long apartmentId;
-    private Long assignedToId;
-    private StatusDto status;
+
+    @JsonProperty("usuarioAsignadoId")
+    @JsonAlias("assignedUserId")
+    private Long assignedUserId;
+
+    @JsonProperty("estadoId")
+    @JsonAlias("statusId")
+    private Long statusId;
+
+    @Builder.Default
+    @JsonProperty("listaVerificacion")
+    @JsonAlias("checklist")
+    private List<ChecklistItem> checklist = new ArrayList<>();
 
     public static TaskDto fromEntity(Task t){
         if (t == null) return null;
@@ -25,9 +48,12 @@ public class TaskDto {
                 .id(t.getId())
                 .titulo(t.getTitulo())
                 .descripcion(t.getDescripcion())
-                .apartmentId(t.getApartment().getId())
-                .assignedToId(t.getAssignedTo() != null ? t.getAssignedTo().getId() : null)
-                .status(StatusDto.fromEntity(t.getStatus()))
+            .apartmentId(t.getApartment() != null ? t.getApartment().getId() : null)
+            .assignedUserId(t.getAssignedTo() != null ? t.getAssignedTo().getId() : null)
+            .statusId(t.getStatus() != null ? t.getStatus().getId() : null)
+            .checklist(t.getChecklist() == null ? new ArrayList<>() : t.getChecklist().stream()
+                .map(TaskDto::copyChecklistItem)
+                .collect(Collectors.toList()))
                 .build();
     }
 
@@ -37,7 +63,22 @@ public class TaskDto {
                 .id(dto.getId())
                 .titulo(dto.getTitulo())
                 .descripcion(dto.getDescripcion())
-                // apartment, assignedTo y status se setean en el service
+                .checklist(dto.getChecklist() == null ? new ArrayList<>() : dto.getChecklist().stream()
+                        .map(TaskDto::copyChecklistItem)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    private static ChecklistItem copyChecklistItem(ChecklistItem item) {
+        if (item == null) {
+            return null;
+        }
+
+        return ChecklistItem.builder()
+                .descripcion(item.getDescripcion())
+                .estado(item.getEstado())
+                .nota(item.getNota())
                 .build();
     }
 }
+

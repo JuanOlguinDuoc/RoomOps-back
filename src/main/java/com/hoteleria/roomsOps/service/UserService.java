@@ -29,7 +29,7 @@ public class UserService {
         User entity = UserDto.toEntity(dto);
 
         if (dto.getRole() == null) {
-            throw new IllegalArgumentException("role is required");
+            throw new IllegalArgumentException("El rol es obligatorio");
         }
 
         // check duplicates
@@ -44,7 +44,7 @@ public class UserService {
         entity.setPassword(dto.getPassword());
 
         Role role = roleRepo.findByName(dto.getRole())
-                .orElseThrow(() -> new IllegalArgumentException("Role not found: " + dto.getRole()));
+            .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + dto.getRole()));
 
         entity.setRole(role);
 
@@ -66,7 +66,7 @@ public class UserService {
 
     public UserDto updateUser(Long id, UserDto dto){
         User existing = userRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
         existing.setRun(dto.getRun());
         existing.setFirstName(dto.getFirstName());
@@ -80,7 +80,7 @@ public class UserService {
 
         if (dto.getRole() != null) {
             Role role = roleRepo.findByName(dto.getRole())
-                    .orElseThrow(() -> new IllegalArgumentException("Role not found: " + dto.getRole()));
+                    .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + dto.getRole()));
             existing.setRole(role);
         }
 
@@ -90,14 +90,14 @@ public class UserService {
 
     public void deleteUser(Long id){
         if (!userRepo.existsById(id)) {
-            throw new IllegalArgumentException("User not found");
+            throw new IllegalArgumentException("Usuario no encontrado");
         }
         userRepo.deleteById(id);
     }
 
     public UserDto patchUser(Long id, Map<String, Object> updates){
         User existing = userRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
         if (updates.containsKey("firstName"))
             existing.setFirstName((String) updates.get("firstName"));

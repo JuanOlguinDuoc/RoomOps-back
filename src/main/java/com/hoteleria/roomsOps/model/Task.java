@@ -1,5 +1,8 @@
 package com.hoteleria.roomsOps.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,4 +34,10 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "status_id", nullable = false)
     private Status status;
+
+    @Builder.Default
+    @ElementCollection
+    @CollectionTable(name = "task_checklist", joinColumns = @JoinColumn(name = "task_id"))
+    private List<ChecklistItem> checklist = new ArrayList<>();
 }
+
