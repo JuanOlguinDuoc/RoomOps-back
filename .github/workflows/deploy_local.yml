@@ -2,7 +2,7 @@ name: Despliegue local de RoomOps
 
 on:
   push:
-    branches: ["main"]
+    branches: ["master"]
   workflow_dispatch:
 
 permissions:
@@ -29,11 +29,8 @@ jobs:
           java-version: "17"
           cache: maven
 
-      - name: Dar permisos de ejecucion a Maven Wrapper
-        run: chmod +x mvnw
-
       - name: Construir JAR
-        run: ./mvnw -B clean package -DskipTests
+        run: mvn -B clean package -DskipTests
 
       - name: Desplegar y reiniciar aplicacion local
         run: |
