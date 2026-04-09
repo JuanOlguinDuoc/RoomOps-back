@@ -1,4 +1,5 @@
-name: Crear sub-issues 
+name: Crear feature backend completo (Java MVC)
+
 permissions:
   contents: write
   issues: write
@@ -7,41 +8,54 @@ permissions:
 on:
   workflow_dispatch:
     inputs:
-      parent_id:
-        description: "Número del issue padre (ej: 15)"
+      model:
+        description: "Nombre del feature/modelo (ej: Roles)"
         required: true
-      entity:
-        description: "Nombre de la entidad (ej: Productos)"
-        required: true
-      subtasks:
-        description: "Lista de subtareas separadas por coma"
-        required: false
-        default: "modelo,vista,modelo-vista,persistencia local,botón de acceso"
 
 jobs:
-  create_subissues:
+  create_backend_feature:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Crear sub-issues
+      - name: Crear feature + sub-issues
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
-          PARENT: ${{ github.event.inputs.parent_id }}
-          ENTITY: ${{ github.event.inputs.entity }}
-          SUBTASKS: ${{ github.event.inputs.subtasks }}
+          MODEL: ${{ github.event.inputs.model }}
         run: |
-          IFS=',' read -ra TASKS <<< "$SUBTASKS"
-          echo "Creando subtareas para $ENTITY (#$PARENT)..."
-          for TASK in "${TASKS[@]}"; do
-            OUTPUT=$(gh issue create \
+          echo "Creando feature completa para $MODEL..."
+
+          # 1. Crear issue padre y obtener la URL completa
+          PARENT_URL=$(gh issue create \
             --repo "$REPO" \
-            --title "Crear ${TASK} para ${ENTITY}" \
-            --body "Sub-issue de #$PARENT" \
-            --label "subtask")
-          ISSUE_NUMBER=$(echo "$OUTPUT" | grep -oE '#[0-9]+' | head -1 | tr -d '#')
-            gh issue comment $PARENT --body "- [ ] #$ISSUE_NUMBER Crear ${TASK} para ${ENTITY}"
+            --title "$MODEL" \
+            --body "Feature backend para $MODEL" \
+            --label "backend,feature")
+          
+          # Extraer solo el número del final de la URL (ej: .../issues/123 -> 123)
+          PARENT_NUMBER=$(echo "$PARENT_URL" | grep -oE '[0-9]+$')
+
+          echo "Issue padre creado: #$PARENT_NUMBER"
+
+          # 2. Definir tareas fijas
+          TASKS=("modelo" "repository" "service" "controller" "dto" "tests")
+
+          # 3. Crear sub-issues
+          for TASK in "${TASKS[@]}"; do
+            TITLE="[${MODEL}] Crear ${TASK}"
+            BODY="Sub-issue de #$PARENT_NUMBER. Entidad: $MODEL. Capa: $TASK"
+
+            SUB_URL=$(gh issue create \
+              --repo "$REPO" \
+              --title "$TITLE" \
+              --body "$BODY" \
+              --label "backend,$TASK")
+            
+            SUB_NUMBER=$(echo "$SUB_URL" | grep -oE '[0-9]+$')
+
+            # 4. Añadir el checklist al issue padre
+            gh issue comment "$PARENT_NUMBER" --repo "$REPO" --body "- [ ] #$SUB_NUMBER $TITLE"
           done

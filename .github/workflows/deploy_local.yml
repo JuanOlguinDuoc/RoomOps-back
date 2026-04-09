@@ -1,0 +1,44 @@
+name: Despliegue local de RoomOps
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  despliegue:
+    runs-on: self-hosted
+
+    env:
+      NOMBRE_APP: roomops
+      NOMBRE_JAR: roomsOps-0.0.1-SNAPSHOT.jar
+      DIRECTORIO_DESPLIEGUE: /home/github-runner/apps/roomops
+      RUTA_JAR_DESPLIEGUE: /home/github-runner/apps/roomops/roomops.jar
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Dar permisos de ejecucion a Maven Wrapper
+        run: chmod +x mvnw
+
+      - name: Construir JAR
+        run: ./mvnw -B clean package -DskipTests
+
+      - name: Desplegar y reiniciar aplicacion local
+        run: |
+          set -e
+          mkdir -p "${{ env.DIRECTORIO_DESPLIEGUE }}"
+          cp "target/${{ env.NOMBRE_JAR }}" "${{ env.RUTA_JAR_DESPLIEGUE }}"
+          pkill -f "${{ env.NOMBRE_APP }}.jar" || true
+          nohup java -jar "${{ env.RUTA_JAR_DESPLIEGUE }}" > "${{ env.DIRECTORIO_DESPLIEGUE }}/app.log" 2>&1 &
