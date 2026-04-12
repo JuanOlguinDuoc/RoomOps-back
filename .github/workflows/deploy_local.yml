@@ -1,8 +1,6 @@
 name: Despliegue Docker local de RoomOps
 
 on:
-  push:
-    branches: ["master"]
   workflow_dispatch:
 
 permissions:
