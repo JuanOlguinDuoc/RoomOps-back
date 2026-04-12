@@ -68,14 +68,18 @@ public class RoleController {
             roleService.deleteRole(id);
             return ResponseEntity.ok(Map.of("mensaje","Rol eliminado"));
         } catch (Exception e){
-            if (e.getMessage() != null && e.getMessage().toLowerCase().contains("no encontrado")) {
+
+            // en caso de que sea Null, le asigno un mensaje genérico para evitar NullPointerException al acceder a getMessage()
+            String errorMsg = e.getMessage() != null ? e.getMessage() : "Error desconocido";
+
+            if (errorMsg.toLowerCase().contains("no encontrado")) {
                 return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("mensaje","Rol no encontrado","error", e.getMessage()));
+                    .body(Map.of("mensaje","Rol no encontrado","error", errorMsg));
             }
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("mensaje","Error al eliminar rol","error", e.getMessage()));
+                .body(Map.of("mensaje","Error al eliminar rol","error", errorMsg));
         }
     }
 }
