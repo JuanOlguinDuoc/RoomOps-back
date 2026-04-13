@@ -31,7 +31,7 @@ public class RoleService {
     }
 
     public RoleDto updateRole(Long id, RoleDto dto){
-        Role existing = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Role not found"));
+        Role existing = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Rol no encontrado"));
         existing.setName(dto.getName());
         Role saved = repo.save(existing);
         return RoleDto.fromEntity(saved);
@@ -39,7 +39,7 @@ public class RoleService {
 
     public void deleteRole(Long id){
         if (!repo.existsById(id)) {
-            throw new IllegalArgumentException("Role not found");
+            throw new IllegalArgumentException("Rol no encontrado");
         }
         repo.deleteById(id);
     }

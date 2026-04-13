@@ -2,6 +2,7 @@ package com.hoteleria.roomsOps.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,8 @@ public class UserService {
     @Autowired
     private RoleRepo roleRepo;
 
-    public List<User> getUsers(){
-        return userRepo.findAll();
+    public List<UserDto> getUsers(){
+        return userRepo.findAll().stream().map(UserDto::fromEntity).collect(Collectors.toList());
     }
 
     public UserDto createUser(UserDto dto) {
