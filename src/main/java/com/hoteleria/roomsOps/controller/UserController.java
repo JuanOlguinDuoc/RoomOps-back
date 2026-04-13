@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/users")
@@ -23,11 +22,8 @@ public class UserController {
     private UserService service;
 
     @GetMapping
-    public List<UserDto> userList() {
-        return service.getUsers()
-                      .stream()
-                      .map(UserDto::fromEntity)
-                      .collect(Collectors.toList());
+    public List<UserDto> listUsers(){
+        return service.getUsers();
     }
 
     @PostMapping
@@ -35,11 +31,11 @@ public class UserController {
         Map<String, Object> resp = new HashMap<>();
         try {
             UserDto created = service.createUser(dto);
-            resp.put("message", "Usuario generado correctamente");
+            resp.put("mensaje", "Usuario generado correctamente");
             resp.put("user", created);
             return ResponseEntity.status(HttpStatus.CREATED).body(resp);
         } catch (Exception e) {
-            resp.put("message", "Error al crear usuario");
+            resp.put("mensaje", "Error al crear usuario");
             resp.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);
         }
@@ -52,7 +48,7 @@ public class UserController {
         if (dto == null) {
             return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(Map.of("message","Usuario no encontrado"));
+                .body(Map.of("mensaje","Usuario no encontrado"));
         }
 
         return ResponseEntity.ok(dto);
@@ -66,7 +62,7 @@ public class UserController {
         if (email == null || password == null) {
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message","Email y password son requeridos"));
+                .body(Map.of("mensaje","Email y password son requeridos"));
         }
 
         UserDto user = service.findByEmail(email);
@@ -74,7 +70,7 @@ public class UserController {
         if (user == null || !password.equals(user.getPassword())) {
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("message","Credenciales inválidas"));
+                .body(Map.of("mensaje","Credenciales inválidas"));
         }
 
         String token = "token-" + user.getEmail() + "-" + System.currentTimeMillis();
@@ -90,11 +86,11 @@ public class UserController {
     public ResponseEntity<Object> updateUser(@PathVariable Long id, @RequestBody UserDto dto){
         try{
             UserDto updated = service.updateUser(id, dto);
-            return ResponseEntity.ok(Map.of("message","Usuario actualizado","user", updated));
+            return ResponseEntity.ok(Map.of("mensaje","Usuario actualizado","user", updated));
         } catch (Exception e){
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message","Error al actualizar usuario","error", e.getMessage()));
+                .body(Map.of("mensaje","Error al actualizar usuario","error", e.getMessage()));
         }
     }
 
@@ -102,16 +98,19 @@ public class UserController {
     public ResponseEntity<Object> deleteUser(@PathVariable Long id){
         try{
             service.deleteUser(id);
-            return ResponseEntity.ok(Map.of("message","Usuario eliminado"));
+            return ResponseEntity.ok(Map.of("mensaje","Usuario eliminado"));
         } catch (Exception e){
             if (e.getMessage() != null && e.getMessage().contains("not found")) {
                 return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message","Usuario no encontrado","error", e.getMessage()));
+                    .body(Map.of("mensaje","Usuario no encontrado","error", e.getMessage()));
             }
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("mensaje", "Error al eliminar usuario");
+            resp.put("error", e.getMessage());
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message","Error al eliminar usuario","error", e.getMessage()));
+                .body(resp);
         }
     }
 
@@ -124,11 +123,11 @@ public class UserController {
 
             UserDto patched = service.patchUser(id, updates);
 
-            return ResponseEntity.ok(Map.of("message","Usuario parchado","user", patched));
+            return ResponseEntity.ok(Map.of("mensaje","Usuario parchado","user", patched));
         } catch (Exception e){
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message","Error al parchado usuario","error", e.getMessage()));
+                .body(Map.of("mensaje","Error al parchado usuario","error", e.getMessage()));
         }
     }
 }
