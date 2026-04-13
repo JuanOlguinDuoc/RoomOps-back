@@ -13,6 +13,9 @@ import com.hoteleria.roomsOps.model.User;
 import com.hoteleria.roomsOps.repository.RoleRepo;
 import com.hoteleria.roomsOps.repository.UserRepo;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+
 @Service
 public class UserService {
 
@@ -22,6 +25,10 @@ public class UserService {
     @Autowired
     private RoleRepo roleRepo;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
     public List<UserDto> getUsers(){
         return userRepo.findAll().stream().map(UserDto::fromEntity).collect(Collectors.toList());
     }
@@ -30,7 +37,7 @@ public class UserService {
         User entity = UserDto.toEntity(dto);
 
         if (dto.getRole() == null) {
-            throw new IllegalArgumentException("role is required");
+            throw new IllegalArgumentException("El Role es obligatorio");
         }
 
         // check duplicates
@@ -42,10 +49,15 @@ public class UserService {
             throw new IllegalArgumentException("El RUN ya está registrado");
         }
 
-        entity.setPassword(dto.getPassword());
+        //ahora con encriptación
+        if (dto.getPassword() == null || dto.getPassword().isBlank()) {
+            throw new IllegalArgumentException("La contraseña es obligatoria");
+        }
+
+        entity.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         Role role = roleRepo.findByName(dto.getRole())
-                .orElseThrow(() -> new IllegalArgumentException("Role not found: " + dto.getRole()));
+                .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + dto.getRole()));
 
         entity.setRole(role);
 
@@ -67,21 +79,21 @@ public class UserService {
 
     public UserDto updateUser(Long id, UserDto dto){
         User existing = userRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
         existing.setRun(dto.getRun());
         existing.setFirstName(dto.getFirstName());
         existing.setLastName(dto.getLastName());
         existing.setEmail(dto.getEmail());
 
-        // ❌ SIN encriptación
+        // CON encriptación
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            existing.setPassword(dto.getPassword());
+            existing.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
         if (dto.getRole() != null) {
             Role role = roleRepo.findByName(dto.getRole())
-                    .orElseThrow(() -> new IllegalArgumentException("Role not found: " + dto.getRole()));
+                    .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + dto.getRole()));
             existing.setRole(role);
         }
 
@@ -91,14 +103,14 @@ public class UserService {
 
     public void deleteUser(Long id){
         if (!userRepo.existsById(id)) {
-            throw new IllegalArgumentException("User not found");
+            throw new IllegalArgumentException("Usuario no encontrado");
         }
         userRepo.deleteById(id);
     }
 
     public UserDto patchUser(Long id, Map<String, Object> updates){
         User existing = userRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
         if (updates.containsKey("firstName"))
             existing.setFirstName((String) updates.get("firstName"));
@@ -109,11 +121,11 @@ public class UserService {
         if (updates.containsKey("email"))
             existing.setEmail((String) updates.get("email"));
 
-        // ❌ SIN encriptación
+        // CON encriptación
         if (updates.containsKey("password")) {
             String password = (String) updates.get("password");
             if (password != null && !password.isEmpty()) {
-                existing.setPassword(password);
+                existing.setPassword(passwordEncoder.encode(password));
             }
         }
 

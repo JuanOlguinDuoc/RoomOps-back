@@ -37,7 +37,6 @@ public class UserDto {
                 .firstName(u.getFirstName())
                 .lastName(u.getLastName())
                 .email(u.getEmail())
-                .password(u.getPassword())
                 .role(u.getRole() != null ? u.getRole().getName() : null)
                 .build();
     }

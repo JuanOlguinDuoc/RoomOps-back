@@ -53,7 +53,7 @@ public class UserController {
 
         return ResponseEntity.ok(dto);
     }
-
+/* 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody Map<String, String> payload) {
         String email = payload.get("email");
@@ -80,7 +80,7 @@ public class UserController {
         resp.put("user", user);
 
         return ResponseEntity.ok(resp);
-    }
+    }*/
 
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable Long id, @RequestBody UserDto dto){

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,6 +28,8 @@ import com.hoteleria.roomsOps.model.User;
 import com.hoteleria.roomsOps.repository.RoleRepo;
 import com.hoteleria.roomsOps.repository.UserRepo;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
@@ -38,6 +41,9 @@ class UserServiceTest {
 
     @InjectMocks
     private UserService service;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @Test
     void getUsers() {
@@ -73,27 +79,23 @@ class UserServiceTest {
                 .build();
 
         Role role = Role.builder().id(1L).name("trabajador").build();
-        User saved = User.builder()
-                .id(1L)
-                .run(dto.getRun())
-                .firstName(dto.getFirstName())
-                .lastName(dto.getLastName())
-                .email(dto.getEmail())
-                .password(dto.getPassword())
-                .role(role)
-                .build();
 
         when(userRepo.existsByEmail("juan@example.com")).thenReturn(false);
         when(userRepo.existsByRun("12345678-9")).thenReturn(false);
         when(roleRepo.findByName("trabajador")).thenReturn(Optional.of(role));
-        when(userRepo.save(any(User.class))).thenReturn(saved);
+        when(passwordEncoder.encode("prueba")).thenReturn("encoded-prueba");
+
+        when(userRepo.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         UserDto result = service.createUser(dto);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
         assertEquals("juan@example.com", result.getEmail());
         assertEquals("trabajador", result.getRole());
+
+        verify(userRepo).save(argThat(user ->
+                "encoded-prueba".equals(user.getPassword())
+        ));
     }
 
     @Test
@@ -106,7 +108,7 @@ class UserServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.createUser(dto));
 
-        assertEquals("role is required", ex.getMessage());
+        assertEquals("El Role es obligatorio", ex.getMessage());
         verify(userRepo, never()).save(any(User.class));
     }
 
@@ -147,6 +149,46 @@ class UserServiceTest {
         verify(userRepo, never()).save(any(User.class));
     }
 
+        @Test
+        void createUserFailsWhenPasswordMissing() {
+                UserDto dto = UserDto.builder()
+                                .run("12345678-9")
+                                .email("juan@example.com")
+                                .password("   ")
+                                .role("trabajador")
+                                .build();
+
+                when(userRepo.existsByEmail("juan@example.com")).thenReturn(false);
+                when(userRepo.existsByRun("12345678-9")).thenReturn(false);
+
+                IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                                () -> service.createUser(dto));
+
+                assertEquals("La contraseña es obligatoria", ex.getMessage());
+                verify(userRepo, never()).save(any(User.class));
+                verify(roleRepo, never()).findByName(any(String.class));
+        }
+
+        @Test
+        void createUserFailsWhenPasswordIsNull() {
+                UserDto dto = UserDto.builder()
+                                .run("12345678-9")
+                                .email("juan@example.com")
+                                .password(null)
+                                .role("trabajador")
+                                .build();
+
+                when(userRepo.existsByEmail("juan@example.com")).thenReturn(false);
+                when(userRepo.existsByRun("12345678-9")).thenReturn(false);
+
+                IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                                () -> service.createUser(dto));
+
+                assertEquals("La contraseña es obligatoria", ex.getMessage());
+                verify(userRepo, never()).save(any(User.class));
+                verify(roleRepo, never()).findByName(any(String.class));
+        }
+
     @Test
     void createUserFailsWhenRoleNotFound() {
         UserDto dto = UserDto.builder()
@@ -163,7 +205,7 @@ class UserServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.createUser(dto));
 
-        assertTrue(ex.getMessage().contains("Role not found"));
+        assertTrue(ex.getMessage().contains("Rol no encontrado"));
         verify(userRepo, never()).save(any(User.class));
     }
 
@@ -291,7 +333,7 @@ class UserServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.updateUser(5L, UserDto.builder().build()));
 
-        assertTrue(ex.getMessage().contains("User not found"));
+        assertTrue(ex.getMessage().contains("Usuario no encontrado"));
     }
 
     @Test
@@ -322,9 +364,10 @@ class UserServiceTest {
 
         UserDto result = service.updateUser(1L, dto);
 
-        assertEquals("vieja", result.getPassword());
+                assertNull(result.getPassword());
         assertEquals("trabajador", result.getRole());
         verify(roleRepo, never()).findByName(any(String.class));
+                verify(userRepo).save(argThat(user -> "vieja".equals(user.getPassword())));
     }
 
     @Test
@@ -355,7 +398,7 @@ class UserServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.updateUser(1L, dto));
 
-        assertTrue(ex.getMessage().contains("Role not found"));
+        assertTrue(ex.getMessage().contains("Rol no encontrado"));
         verify(userRepo, never()).save(any(User.class));
     }
 
@@ -375,7 +418,7 @@ class UserServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.deleteUser(11L));
 
-        assertTrue(ex.getMessage().contains("User not found"));
+        assertTrue(ex.getMessage().contains("Usuario no encontrado"));
         verify(userRepo, never()).deleteById(11L);
     }
 
@@ -399,6 +442,7 @@ class UserServiceTest {
         updates.put("password", "nueva");
 
         when(userRepo.findById(1L)).thenReturn(Optional.of(existing));
+                when(passwordEncoder.encode("nueva")).thenReturn("encoded-nueva");
         when(userRepo.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         UserDto result = service.patchUser(1L, updates);
@@ -406,7 +450,8 @@ class UserServiceTest {
         assertEquals("Pedro", result.getFirstName());
         assertEquals("Gomez", result.getLastName());
         assertEquals("pedro@example.com", result.getEmail());
-        assertEquals("nueva", result.getPassword());
+                assertNull(result.getPassword());
+                verify(userRepo).save(argThat(user -> "encoded-nueva".equals(user.getPassword())));
     }
 
     @Test
@@ -430,7 +475,8 @@ class UserServiceTest {
 
         UserDto result = service.patchUser(1L, updates);
 
-        assertEquals("vieja", result.getPassword());
+                assertNull(result.getPassword());
+                verify(userRepo).save(argThat(user -> "vieja".equals(user.getPassword())));
     }
 
         @Test
@@ -454,7 +500,8 @@ class UserServiceTest {
                 UserDto result = service.patchUser(1L, updates);
 
                 assertEquals("Pedro", result.getFirstName());
-                assertEquals("vieja", result.getPassword());
+                assertNull(result.getPassword());
+                verify(userRepo).save(argThat(user -> "vieja".equals(user.getPassword())));
         }
 
         @Test
@@ -478,7 +525,8 @@ class UserServiceTest {
 
                 UserDto result = service.patchUser(1L, updates);
 
-                assertEquals("vieja", result.getPassword());
+                assertNull(result.getPassword());
+                verify(userRepo).save(argThat(user -> "vieja".equals(user.getPassword())));
         }
 
     @Test
@@ -488,6 +536,6 @@ class UserServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.patchUser(42L, Map.of("firstName", "Pedro")));
 
-        assertTrue(ex.getMessage().contains("User not found"));
+        assertTrue(ex.getMessage().contains("Usuario no encontrado"));
     }
 }

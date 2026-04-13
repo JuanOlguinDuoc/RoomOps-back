@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -32,6 +33,7 @@ import com.hoteleria.roomsOps.service.UserService;
 // Carga solo la capa web para probar el controlador en aislamiento.
 
 @WebMvcTest(UserController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class UserControllerTest {
 
     // Cliente de pruebas HTTP para invocar endpoints sin levantar servidor real.
@@ -130,79 +132,6 @@ public class UserControllerTest {
         .param("email", "juan@example.com"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.mensaje").value("Usuario no encontrado"));
-    }
-
-    @Test
-    void loginSuccess() throws Exception {
-        Map<String, String> payload = new HashMap<>();
-        payload.put("email", "juan@example.com");
-        payload.put("password", "prueba");
-
-        UserDto user = UserDto.builder().id(1L).run("12345678-9").firstName("Juan").lastName("Olguin")
-                .email("juan@example.com").password("prueba").role("trabajador").build();
-
-        when(service.findByEmail("juan@example.com")).thenReturn(user);
-
-        mock.perform(post("/api/v1/users/login")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(mapper.writeValueAsString(payload)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.token").exists())
-        .andExpect(jsonPath("$.user.id").value(1L))
-        .andExpect(jsonPath("$.user.email").value("juan@example.com"));
-    }
-
-    @Test
-    void loginBadRequestWhenMissingFields() throws Exception {
-        Map<String, String> payload = Map.of("email", "juan@example.com");
-
-        mock.perform(post("/api/v1/users/login")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(mapper.writeValueAsString(payload)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.mensaje").value("Email y password son requeridos"));
-    }
-
-    @Test
-    void loginBadRequestWhenMissingEmail() throws Exception {
-        Map<String, String> payload = Map.of("password", "prueba");
-
-        mock.perform(post("/api/v1/users/login")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(mapper.writeValueAsString(payload)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.mensaje").value("Email y password son requeridos"));
-    }
-
-    @Test
-    void loginUnauthorizedWhenCredentialsInvalid() throws Exception {
-        Map<String, String> payload = new HashMap<>();
-        payload.put("email", "juan@example.com");
-        payload.put("password", "incorrecta");
-
-        UserDto user = UserDto.builder().id(1L).email("juan@example.com").password("prueba").build();
-        when(service.findByEmail("juan@example.com")).thenReturn(user);
-
-        mock.perform(post("/api/v1/users/login")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(mapper.writeValueAsString(payload)))
-        .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.mensaje").value("Credenciales inválidas"));
-    }
-
-    @Test
-    void loginUnauthorizedWhenUserNotFound() throws Exception {
-        Map<String, String> payload = new HashMap<>();
-        payload.put("email", "noexiste@example.com");
-        payload.put("password", "prueba");
-
-        when(service.findByEmail("noexiste@example.com")).thenReturn(null);
-
-        mock.perform(post("/api/v1/users/login")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(mapper.writeValueAsString(payload)))
-        .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.mensaje").value("Credenciales inválidas"));
     }
 
     @Test
