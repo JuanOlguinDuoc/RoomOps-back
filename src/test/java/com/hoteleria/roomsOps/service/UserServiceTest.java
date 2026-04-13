@@ -167,6 +167,39 @@ class UserServiceTest {
         verify(userRepo, never()).save(any(User.class));
     }
 
+        @Test
+        void createUserWithNullRunSkipsRunDuplicateCheck() {
+                UserDto dto = UserDto.builder()
+                                .run(null)
+                                .firstName("Juan")
+                                .lastName("Olguin")
+                                .email("juan@example.com")
+                                .password("prueba")
+                                .role("trabajador")
+                                .build();
+
+                Role role = Role.builder().id(1L).name("trabajador").build();
+                User saved = User.builder()
+                                .id(1L)
+                                .run(null)
+                                .firstName("Juan")
+                                .lastName("Olguin")
+                                .email("juan@example.com")
+                                .password("prueba")
+                                .role(role)
+                                .build();
+
+                when(userRepo.existsByEmail("juan@example.com")).thenReturn(false);
+                when(roleRepo.findByName("trabajador")).thenReturn(Optional.of(role));
+                when(userRepo.save(any(User.class))).thenReturn(saved);
+
+                UserDto result = service.createUser(dto);
+
+                assertNotNull(result);
+                assertEquals("juan@example.com", result.getEmail());
+                verify(userRepo, never()).existsByRun(any(String.class));
+        }
+
     @Test
     void findByIdFound() {
         Role role = Role.builder().id(1L).name("trabajador").build();
@@ -262,6 +295,71 @@ class UserServiceTest {
     }
 
     @Test
+    void updateUserSkipsPasswordAndRoleWhenNotProvided() {
+        Role oldRole = Role.builder().id(1L).name("trabajador").build();
+
+        User existing = User.builder()
+                .id(1L)
+                .run("12345678-9")
+                .firstName("Juan")
+                .lastName("Olguin")
+                .email("juan@example.com")
+                .password("vieja")
+                .role(oldRole)
+                .build();
+
+        UserDto dto = UserDto.builder()
+                .run("12345678-9")
+                .firstName("Juan")
+                .lastName("Olguin")
+                .email("juan@example.com")
+                .password("")
+                .role(null)
+                .build();
+
+        when(userRepo.findById(1L)).thenReturn(Optional.of(existing));
+        when(userRepo.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserDto result = service.updateUser(1L, dto);
+
+        assertEquals("vieja", result.getPassword());
+        assertEquals("trabajador", result.getRole());
+        verify(roleRepo, never()).findByName(any(String.class));
+    }
+
+    @Test
+    void updateUserFailsWhenRoleNotFound() {
+        Role oldRole = Role.builder().id(1L).name("trabajador").build();
+
+        User existing = User.builder()
+                .id(1L)
+                .run("12345678-9")
+                .firstName("Juan")
+                .lastName("Olguin")
+                .email("juan@example.com")
+                .password("vieja")
+                .role(oldRole)
+                .build();
+
+        UserDto dto = UserDto.builder()
+                .run("12345678-9")
+                .firstName("Juan")
+                .lastName("Olguin")
+                .email("juan@example.com")
+                .role("inexistente")
+                .build();
+
+        when(userRepo.findById(1L)).thenReturn(Optional.of(existing));
+        when(roleRepo.findByName("inexistente")).thenReturn(Optional.empty());
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.updateUser(1L, dto));
+
+        assertTrue(ex.getMessage().contains("Role not found"));
+        verify(userRepo, never()).save(any(User.class));
+    }
+
+    @Test
     void deleteUserSuccess() {
         when(userRepo.existsById(10L)).thenReturn(true);
 
@@ -334,6 +432,54 @@ class UserServiceTest {
 
         assertEquals("vieja", result.getPassword());
     }
+
+        @Test
+        void patchUserWithoutPasswordFieldKeepsCurrentPassword() {
+                Role role = Role.builder().id(1L).name("trabajador").build();
+                User existing = User.builder()
+                                .id(1L)
+                                .run("12345678-9")
+                                .firstName("Juan")
+                                .lastName("Olguin")
+                                .email("juan@example.com")
+                                .password("vieja")
+                                .role(role)
+                                .build();
+
+                Map<String, Object> updates = Map.of("firstName", "Pedro");
+
+                when(userRepo.findById(1L)).thenReturn(Optional.of(existing));
+                when(userRepo.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+                UserDto result = service.patchUser(1L, updates);
+
+                assertEquals("Pedro", result.getFirstName());
+                assertEquals("vieja", result.getPassword());
+        }
+
+        @Test
+        void patchUserDoesNotOverrideWithNullPassword() {
+                Role role = Role.builder().id(1L).name("trabajador").build();
+                User existing = User.builder()
+                                .id(1L)
+                                .run("12345678-9")
+                                .firstName("Juan")
+                                .lastName("Olguin")
+                                .email("juan@example.com")
+                                .password("vieja")
+                                .role(role)
+                                .build();
+
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("password", null);
+
+                when(userRepo.findById(1L)).thenReturn(Optional.of(existing));
+                when(userRepo.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+                UserDto result = service.patchUser(1L, updates);
+
+                assertEquals("vieja", result.getPassword());
+        }
 
     @Test
     void patchUserFailsWhenMissing() {
