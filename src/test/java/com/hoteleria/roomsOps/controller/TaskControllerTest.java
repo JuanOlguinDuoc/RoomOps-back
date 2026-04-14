@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hoteleria.roomsOps.config.JwtAuthenticationFilter;
 import com.hoteleria.roomsOps.dto.TaskDto;
 import com.hoteleria.roomsOps.service.TaskService;
 
@@ -38,6 +39,9 @@ class TaskControllerTest {
 
     @MockBean
     private TaskService service;
+
+        @MockBean
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void listTasksOk() throws Exception {

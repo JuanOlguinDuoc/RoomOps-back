@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hoteleria.roomsOps.config.JwtAuthenticationFilter;
 import com.hoteleria.roomsOps.dto.ApartmentDto;
 import com.hoteleria.roomsOps.service.ApartmentService;
 
@@ -34,6 +35,9 @@ class ApartmentControllerTest {
 
     @MockBean
     private ApartmentService apartmentService;
+
+        @MockBean
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void listApartments() throws Exception {

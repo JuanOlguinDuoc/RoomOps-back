@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.mockito.ArgumentMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hoteleria.roomsOps.config.JwtAuthenticationFilter;
 import com.hoteleria.roomsOps.dto.UserDto;
 import com.hoteleria.roomsOps.service.UserService;
 
@@ -46,6 +47,9 @@ public class UserControllerTest {
 
     @MockBean
     private UserService service;
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void userList() throws Exception {

@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hoteleria.roomsOps.config.JwtAuthenticationFilter;
 import com.hoteleria.roomsOps.dto.RoleDto;
 import com.hoteleria.roomsOps.service.RoleService;
 
@@ -40,6 +41,9 @@ class RoleControllerTest {
     // Mock de la dependencia del controlador para controlar respuestas del servicio.
     @MockBean
     private RoleService roleService;
+
+        @MockBean
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void listRoles() throws Exception {

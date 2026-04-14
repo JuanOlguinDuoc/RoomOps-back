@@ -53,34 +53,6 @@ public class UserController {
 
         return ResponseEntity.ok(dto);
     }
-/* 
-    @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
-        String password = payload.get("password");
-
-        if (email == null || password == null) {
-            return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("mensaje","Email y password son requeridos"));
-        }
-
-        UserDto user = service.findByEmail(email);
-
-        if (user == null || !password.equals(user.getPassword())) {
-            return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("mensaje","Credenciales inválidas"));
-        }
-
-        String token = "token-" + user.getEmail() + "-" + System.currentTimeMillis();
-
-        Map<String, Object> resp = new HashMap<>();
-        resp.put("token", token);
-        resp.put("user", user);
-
-        return ResponseEntity.ok(resp);
-    }*/
 
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable Long id, @RequestBody UserDto dto){

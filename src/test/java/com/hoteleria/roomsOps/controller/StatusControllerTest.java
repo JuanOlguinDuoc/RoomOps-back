@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hoteleria.roomsOps.config.JwtAuthenticationFilter;
 import com.hoteleria.roomsOps.dto.StatusDto;
 import com.hoteleria.roomsOps.service.StatusService;
 
@@ -38,6 +39,9 @@ class StatusControllerTest {
 
     @MockBean
     private StatusService service;
+
+        @MockBean
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void listStatusOk() throws Exception {
