@@ -1,4 +1,4 @@
-/* 
+
 
 package com.hoteleria.roomsOps.config;
 
@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import com.hoteleria.roomsOps.model.Role;
 import com.hoteleria.roomsOps.model.User;
+import com.hoteleria.roomsOps.repository.RoleRepo;
+import com.hoteleria.roomsOps.repository.UserRepo;
 
 
 @Component
@@ -27,11 +29,13 @@ public class Initializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // Crear roles por defecto si no existen
         createRoleIfNotExists("administrador");
-        createRoleIfNotExists("cliente");
-        createRoleIfNotExists("usuario");
+        createRoleIfNotExists("supervisor");
+        createRoleIfNotExists("trabajador");
         
         // Crear usuarios por defecto si no existen
         createUserIfNotExists("00000000-0", "admin", "admin", "admin@duoc.cl", "admin123", "administrador");
+        createUserIfNotExists("00000000-1", "supervisor", "supervisor", "supervisor@duoc.cl", "supervisor123", "supervisor");
+        createUserIfNotExists("00000000-2", "trabajador", "trabajador", "trabajador@duoc.cl", "trabajador123", "trabajador");
 
         System.out.println("✓ Datos inicializados correctamente");
     }
@@ -62,5 +66,3 @@ public class Initializer implements CommandLineRunner {
         }
     }
 }
-
-*/

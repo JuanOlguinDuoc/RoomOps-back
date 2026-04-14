@@ -132,4 +132,8 @@ public class UserService {
         User saved = userRepo.save(existing);
         return UserDto.fromEntity(saved);
     }
+
+    public User findUserEmail(String email){
+        return userRepo.findByEmail(email).orElse(null);
+    }
 }
