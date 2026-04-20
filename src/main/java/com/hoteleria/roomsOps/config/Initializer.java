@@ -28,14 +28,14 @@ public class Initializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // Crear roles por defecto si no existen
-        createRoleIfNotExists("administrador");
-        createRoleIfNotExists("supervisor");
-        createRoleIfNotExists("trabajador");
+        createRoleIfNotExists("ADMINISTRADOR");
+        createRoleIfNotExists("SUPERVISOR");
+        createRoleIfNotExists("TRABAJADOR");
         
         // Crear usuarios por defecto si no existen
-        createUserIfNotExists("00000000-0", "admin", "admin", "admin@duoc.cl", "admin123", "administrador");
-        createUserIfNotExists("00000000-1", "supervisor", "supervisor", "supervisor@duoc.cl", "supervisor123", "supervisor");
-        createUserIfNotExists("00000000-2", "trabajador", "trabajador", "trabajador@duoc.cl", "trabajador123", "trabajador");
+        createUserIfNotExists("00000000-0", "admin", "admin", "admin@duoc.cl", "admin123", "ADMINISTRADOR");
+        createUserIfNotExists("00000000-1", "supervisor", "supervisor", "supervisor@duoc.cl", "supervisor123", "SUPERVISOR");
+        createUserIfNotExists("00000000-2", "trabajador", "trabajador", "trabajador@duoc.cl", "trabajador123", "TRABAJADOR");
 
         System.out.println("✓ Datos inicializados correctamente");
     }
