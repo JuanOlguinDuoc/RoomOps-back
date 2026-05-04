@@ -9,49 +9,74 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
 
-// Componente Spring disponible para inyección en cualquier clase de la aplicación
+/**
+ * Utilidad para generar, validar y extraer información de JWT tokens.
+ * 
+ * Uso:
+ * - generadorToken(String email): Genera un nuevo token JWT para un usuario
+ * - validacionToken(String token): Valida que el token sea válido y no esté expirado
+ * - obtenerCorreo(String token): Extrae el email (subject) del token
+ * - extraerExpiracion(String token): Obtiene la fecha de expiración del token
+ */
 @Component
 public class JwtUtil {
 
-    // Clave secreta leída desde application.properties (jwt.secret).
-    // Debe tener mínimo 32 caracteres para HS256.
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    // Tiempo de vida del token en milisegundos. Por defecto 1 hora (3 600 000 ms).
     @Value("${jwt.expiration:3600000}")
     private long jwtExpiration;
 
-    // Convierte el secret en un objeto SecretKey compatible con HMAC-SHA256.
-    // Se usa StandardCharsets.UTF_8 para evitar diferencias entre entornos.
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JwtUtil.class);
+
+    /**
+     * Obtiene la clave secreta para firmar y verificar tokens
+     */
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    // Genera un token firmado con el email del usuario como subject.
-    // Incluye fecha de emisión y fecha de expiración calculada desde ahora.
+    /**
+     * Genera un JWT firmado con el email del usuario como subject.
+     * El token incluye:
+     * - subject (email del usuario)
+     * - fecha de emisión
+     * - fecha de expiración (por defecto 1 hora)
+     * 
+     * @param email Email del usuario
+     * @return JWT token como String
+     */
     public String generadorToken(String email) {
         return Jwts.builder()
-                .subject(email)                                                        // identifica al usuario
-                .issuedAt(new Date())                                                  // momento de creación
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))      // momento de vencimiento
-                .signWith(getSigningKey(), Jwts.SIG.HS256)                             // firma con HMAC-SHA256
-                .compact();                                                             // serializa a String
+                .subject(email)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSigningKey(), Jwts.SIG.HS256)
+                .compact();
     }
 
-    // Extrae el email (subject) del payload del token.
-    // Si el token está corrupto o expirado, JJWT lanza una excepción antes de llegar aquí.
+    /**
+     * Extrae el email (subject) del payload del token.
+     * Si el token está corrupto o expirado, JJWT lanza una excepción.
+     * 
+     * @param token JWT token
+     * @return Email del usuario
+     */
     public String obtenerCorreo(String token) {
         return Jwts.parser()
-                .verifyWith(getSigningKey())     // define la clave para verificar la firma
+                .verifyWith(getSigningKey())
                 .build()
-                .parseSignedClaims(token)        // verifica firma y parsea el token
-                .getPayload()                    // accede al body (claims)
-                .getSubject();                   // devuelve el campo "sub"
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
     }
 
-    // Valida que el token tenga firma correcta y no haya expirado.
-    // Devuelve false ante cualquier error: firma inválida, expiración, formato incorrecto, etc.
+    /**
+     * Valida que el token tenga firma correcta y no haya expirado.
+     * 
+     * @param token JWT token
+     * @return true si el token es válido, false si hay algún error
+     */
     public boolean validacionToken(String token) {
         try {
             Jwts.parser()
@@ -60,19 +85,23 @@ public class JwtUtil {
                     .parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            // JwtException cubre: firma inválida, token expirado, malformado, etc.
+            logger.debug("Token validation failed: " + e.getMessage());
             return false;
         }
     }
 
-    // Extrae la fecha de expiración del token.
-    // Útil para mostrar al cliente cuándo vence su sesión.
+    /**
+     * Extrae la fecha de expiración del token.
+     * 
+     * @param token JWT token
+     * @return Fecha de expiración
+     */
     public Date extraerExpiracion(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
-                .getExpiration();   // campo "exp" del JWT
+                .getExpiration();
     }
 }

@@ -60,6 +60,7 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + dto.getRole()));
 
         entity.setRole(role);
+        entity.setActivo(true);
 
         User saved = userRepo.save(entity);
         return UserDto.fromEntity(saved);
@@ -101,11 +102,12 @@ public class UserService {
         return UserDto.fromEntity(saved);
     }
 
-    public void deleteUser(Long id){
-        if (!userRepo.existsById(id)) {
-            throw new IllegalArgumentException("Usuario no encontrado");
-        }
-        userRepo.deleteById(id);
+    public void updateEstado(Long id, Boolean activo){
+        User existing = userRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        existing.setActivo(activo);
+        userRepo.save(existing);
     }
 
     public UserDto patchUser(Long id, Map<String, Object> updates){

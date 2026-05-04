@@ -37,7 +37,32 @@ public class ApartmentService {
                 .orElseThrow(() -> new IllegalArgumentException("Apartamento no encontrado"));
 
         existing.setNombre(dto.getNombre());
+        existing.setPiso(dto.getPiso());
         existing.setActivo(dto.getActivo());
+
+        Apartment saved = repo.save(existing);
+        return ApartmentDto.fromEntity(saved);
+    }
+
+    public ApartmentDto patchApartment(Long id, ApartmentDto dto){
+        Apartment existing = repo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Apartamento no encontrado"));
+
+        boolean hasChanges = false;
+
+        if (dto.getNombre() != null) {
+            existing.setNombre(dto.getNombre());
+            hasChanges = true;
+        }
+
+        if (dto.getPiso() != null) {
+            existing.setPiso(dto.getPiso());
+            hasChanges = true;
+        }
+
+        if (!hasChanges) {
+            throw new IllegalArgumentException("Debe enviar al menos nombre o piso para actualizar");
+        }
 
         Apartment saved = repo.save(existing);
         return ApartmentDto.fromEntity(saved);

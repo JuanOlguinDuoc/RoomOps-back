@@ -22,5 +22,8 @@ public class Apartment {
     private String nombre;
 
     @Column(nullable = false)
+    private Integer piso;
+
+    @Column(nullable = false)
     private Boolean activo;
 }

@@ -19,6 +19,7 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private String email;
+    private Boolean activo;
 
     //RECORDATORIO: ESTO SOLO RECIBE PERO NO MUESTRA EN LAS RESPUESTAS
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -37,6 +38,7 @@ public class UserDto {
                 .firstName(u.getFirstName())
                 .lastName(u.getLastName())
                 .email(u.getEmail())
+                .activo(u.getActivo())
                 .role(u.getRole() != null ? u.getRole().getName() : null)
                 .build();
     }
@@ -53,6 +55,7 @@ public class UserDto {
                 .lastName(dto.getLastName())
                 .email(dto.getEmail())
                 .password(dto.getPassword())
+                .activo(dto.getActivo() != null ? dto.getActivo() : true)
                 // role se asigna en el service
                 .build();
     }

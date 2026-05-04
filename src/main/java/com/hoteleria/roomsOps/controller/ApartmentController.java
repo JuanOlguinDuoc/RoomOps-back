@@ -64,6 +64,20 @@ public class ApartmentController {
         }
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<Object> patchApartment(@PathVariable Long id, @RequestBody ApartmentDto dto){
+        try{
+            ApartmentDto updated = apartmentService.patchApartment(id, dto);
+            return ResponseEntity.ok(
+                Map.of("message","Apartamento actualizado parcialmente","apartment", updated)
+            );
+        } catch (Exception e){
+            return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message","Error al actualizar apartamento","error", e.getMessage()));
+        }
+    }
+
     @PatchMapping("/{id}/estado")
     public ResponseEntity<Object> cambiarEstado(@PathVariable Long id, @RequestParam Boolean activo){
         try {

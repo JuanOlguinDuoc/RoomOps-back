@@ -66,11 +66,11 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteUser(@PathVariable Long id){
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<Object> cambiarEstado(@PathVariable Long id, @RequestParam Boolean activo){
         try{
-            service.deleteUser(id);
-            return ResponseEntity.ok(Map.of("mensaje","Usuario eliminado"));
+            service.updateEstado(id, activo);
+            return ResponseEntity.ok(Map.of("mensaje","Estado de usuario actualizado"));
         } catch (Exception e){
             if (e.getMessage() != null && e.getMessage().contains("not found")) {
                 return ResponseEntity
@@ -78,7 +78,7 @@ public class UserController {
                     .body(Map.of("mensaje","Usuario no encontrado","error", e.getMessage()));
             }
             Map<String, Object> resp = new HashMap<>();
-            resp.put("mensaje", "Error al eliminar usuario");
+            resp.put("mensaje", "Error al actualizar estado de usuario");
             resp.put("error", e.getMessage());
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

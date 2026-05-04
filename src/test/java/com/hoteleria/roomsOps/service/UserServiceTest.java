@@ -403,23 +403,35 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteUserSuccess() {
-        when(userRepo.existsById(10L)).thenReturn(true);
+        void updateEstadoSuccess() {
+                Role role = Role.builder().id(1L).name("trabajador").build();
+                User existing = User.builder()
+                                .id(10L)
+                                .run("12345678-9")
+                                .firstName("Juan")
+                                .lastName("Olguin")
+                                .email("juan@example.com")
+                                .password("clave")
+                                .activo(true)
+                                .role(role)
+                                .build();
 
-        service.deleteUser(10L);
+                when(userRepo.findById(10L)).thenReturn(Optional.of(existing));
 
-        verify(userRepo).deleteById(10L);
+        service.updateEstado(10L, false);
+
+                verify(userRepo).save(argThat(user -> Boolean.FALSE.equals(user.getActivo())));
     }
 
     @Test
-    void deleteUserFailsWhenMissing() {
-        when(userRepo.existsById(11L)).thenReturn(false);
+    void updateEstadoFailsWhenMissing() {
+                when(userRepo.findById(11L)).thenReturn(Optional.empty());
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> service.deleteUser(11L));
+                () -> service.updateEstado(11L, false));
 
         assertTrue(ex.getMessage().contains("Usuario no encontrado"));
-        verify(userRepo, never()).deleteById(11L);
+                verify(userRepo, never()).save(any(User.class));
     }
 
     @Test

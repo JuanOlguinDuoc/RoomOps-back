@@ -13,6 +13,7 @@ import com.hoteleria.roomsOps.model.Apartment;
 public class ApartmentDto {
     private Long id;
     private String nombre;
+    private Integer piso;
     private Boolean activo;
 
     public static ApartmentDto fromEntity (Apartment apartment){
@@ -20,6 +21,7 @@ public class ApartmentDto {
         return ApartmentDto.builder()
         .id(apartment.getId())
         .nombre(apartment.getNombre())
+        .piso(apartment.getPiso())
         .activo(apartment.getActivo())
         .build();
     }
@@ -29,6 +31,7 @@ public class ApartmentDto {
         return Apartment.builder()
             .id(dto.getId())
             .nombre(dto.getNombre())
+            .piso(dto.getPiso())
             .activo(dto.getActivo())
             .build();
     }

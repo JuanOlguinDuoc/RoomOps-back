@@ -5,7 +5,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -170,40 +169,40 @@ public class UserControllerTest {
     }
 
     @Test
-    void deleteUserOk() throws Exception {
-        doNothing().when(service).deleteUser(1L);
+    void cambiarEstadoOk() throws Exception {
+        doNothing().when(service).updateEstado(1L, false);
 
-        mock.perform(delete("/api/v1/users/1"))
+        mock.perform(patch("/api/v1/users/1/estado").param("activo", "false"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.mensaje").value("Usuario eliminado"));
+        .andExpect(jsonPath("$.mensaje").value("Estado de usuario actualizado"));
     }
 
     @Test
-    void deleteUserNotFound() throws Exception {
-        doThrow(new IllegalArgumentException("User not found")).when(service).deleteUser(99L);
+    void cambiarEstadoNotFound() throws Exception {
+        doThrow(new IllegalArgumentException("User not found")).when(service).updateEstado(99L, false);
 
-        mock.perform(delete("/api/v1/users/99"))
+        mock.perform(patch("/api/v1/users/99/estado").param("activo", "false"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.mensaje").value("Usuario no encontrado"));
     }
 
     @Test
-    void deleteUserBadRequest() throws Exception {
-        doThrow(new IllegalArgumentException("Error de negocio")).when(service).deleteUser(10L);
+    void cambiarEstadoBadRequest() throws Exception {
+        doThrow(new IllegalArgumentException("Error de negocio")).when(service).updateEstado(10L, false);
 
-        mock.perform(delete("/api/v1/users/10"))
+        mock.perform(patch("/api/v1/users/10/estado").param("activo", "false"))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.mensaje").value("Error al eliminar usuario"))
+        .andExpect(jsonPath("$.mensaje").value("Error al actualizar estado de usuario"))
         .andExpect(jsonPath("$.error").value("Error de negocio"));
     }
 
     @Test
-    void deleteUserErrorWhenExceptionMessageIsNull() throws Exception {
-        doThrow(new RuntimeException((String) null)).when(service).deleteUser(12L);
+    void cambiarEstadoErrorWhenExceptionMessageIsNull() throws Exception {
+        doThrow(new RuntimeException((String) null)).when(service).updateEstado(12L, false);
 
-        mock.perform(delete("/api/v1/users/12"))
+        mock.perform(patch("/api/v1/users/12/estado").param("activo", "false"))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.mensaje").value("Error al eliminar usuario"));
+        .andExpect(jsonPath("$.mensaje").value("Error al actualizar estado de usuario"));
     }
 
     @Test
