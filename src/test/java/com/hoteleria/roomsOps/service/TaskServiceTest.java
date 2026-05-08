@@ -9,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +60,10 @@ class TaskServiceTest {
                 .id(10L)
                 .titulo("Limpiar")
                 .descripcion("Limpiar cocina")
+            .tipo("LIMPIEZA")
+            .prioridad("ALTA")
+            .fecha(LocalDate.of(2026, 5, 6))
+            .dueTime("15:00")
                 .apartment(apartment)
                 .status(status)
                 .assignedTo(user)
@@ -72,6 +77,10 @@ class TaskServiceTest {
         assertEquals(1, result.size());
         assertEquals(10L, result.get(0).getId());
         assertEquals("Limpiar", result.get(0).getTitulo());
+        assertEquals("LIMPIEZA", result.get(0).getTipo());
+        assertEquals("ALTA", result.get(0).getPrioridad());
+        assertEquals(LocalDate.of(2026, 5, 6), result.get(0).getFecha());
+        assertEquals("15:00", result.get(0).getDueTime());
         assertEquals(1L, result.get(0).getApartmentId());
         assertEquals(2L, result.get(0).getStatusId());
         assertEquals(3L, result.get(0).getAssignedUserId());
@@ -87,6 +96,10 @@ class TaskServiceTest {
                 .id(11L)
                 .titulo("Revisar")
                 .descripcion("Revisar bano")
+            .tipo("INSPECCION")
+            .prioridad("MEDIA")
+            .fecha(LocalDate.of(2026, 5, 7))
+            .dueTime("16:30")
                 .apartment(apartment)
                 .status(status)
                 .build();
@@ -97,6 +110,10 @@ class TaskServiceTest {
 
         assertEquals(11L, result.getId());
         assertEquals("Revisar", result.getTitulo());
+        assertEquals("INSPECCION", result.getTipo());
+        assertEquals("MEDIA", result.getPrioridad());
+        assertEquals(LocalDate.of(2026, 5, 7), result.getFecha());
+        assertEquals("16:30", result.getDueTime());
         assertEquals(1L, result.getApartmentId());
         assertEquals(2L, result.getStatusId());
     }
@@ -119,6 +136,10 @@ class TaskServiceTest {
         TaskDto dto = TaskDto.builder()
                 .titulo("Nueva tarea")
                 .descripcion("Descripcion")
+            .tipo("MANTENCION")
+            .prioridad("BAJA")
+            .fecha(LocalDate.of(2026, 5, 8))
+            .dueTime("18:45")
                 .apartmentId(1L)
                 .statusId(2L)
                 .assignedUserId(3L)
@@ -138,6 +159,10 @@ class TaskServiceTest {
 
         assertEquals(15L, result.getId());
         assertEquals("Nueva tarea", result.getTitulo());
+        assertEquals("MANTENCION", result.getTipo());
+        assertEquals("BAJA", result.getPrioridad());
+        assertEquals(LocalDate.of(2026, 5, 8), result.getFecha());
+        assertEquals("18:45", result.getDueTime());
         assertEquals(1L, result.getApartmentId());
         assertEquals(2L, result.getStatusId());
         assertEquals(3L, result.getAssignedUserId());
@@ -341,6 +366,10 @@ class TaskServiceTest {
         TaskDto request = TaskDto.builder()
                 .titulo("Actualizada")
                 .descripcion("Nueva")
+            .tipo("INSPECCION")
+            .prioridad("URGENTE")
+            .fecha(LocalDate.of(2026, 5, 9))
+            .dueTime("10:15")
                 .apartmentId(5L)
                 .statusId(6L)
                 .checklist(List.of(ChecklistItem.builder().descripcion("Paso").estado(ChecklistStatus.EN_PROGRESO).build()))
@@ -355,6 +384,10 @@ class TaskServiceTest {
 
         assertEquals(20L, result.getId());
         assertEquals("Actualizada", result.getTitulo());
+        assertEquals("INSPECCION", result.getTipo());
+        assertEquals("URGENTE", result.getPrioridad());
+        assertEquals(LocalDate.of(2026, 5, 9), result.getFecha());
+        assertEquals("10:15", result.getDueTime());
         assertEquals(5L, result.getApartmentId());
         assertEquals(6L, result.getStatusId());
         assertEquals(3L, result.getAssignedUserId());

@@ -1,5 +1,6 @@
 package com.hoteleria.roomsOps.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,14 @@ public class Task {
     private String titulo;
 
     private String descripcion;
+
+    private String tipo;
+
+    private String prioridad;
+
+    private LocalDate fecha;
+
+    private String dueTime; // "15:00"
 
     @ManyToOne
     @JoinColumn(name = "apartment_id", nullable = false)

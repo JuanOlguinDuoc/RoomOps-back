@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -46,13 +47,17 @@ class TaskControllerTest {
     @Test
     void listTasksOk() throws Exception {
         when(service.getAllTasks()).thenReturn(List.of(
-                TaskDto.builder().id(1L).titulo("T1").descripcion("D1").build(),
-                TaskDto.builder().id(2L).titulo("T2").descripcion("D2").build()));
+                TaskDto.builder().id(1L).titulo("T1").descripcion("D1").tipo("LIMPIEZA").prioridad("ALTA").fecha(LocalDate.of(2026, 5, 6)).dueTime("11:00").build(),
+                TaskDto.builder().id(2L).titulo("T2").descripcion("D2").tipo("INSPECCION").prioridad("MEDIA").fecha(LocalDate.of(2026, 5, 7)).dueTime("12:00").build()));
 
         mockMvc.perform(get("/api/v1/tasks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].titulo").value("T1"))
+                .andExpect(jsonPath("$[0].tipo").value("LIMPIEZA"))
+                .andExpect(jsonPath("$[0].prioridad").value("ALTA"))
+                .andExpect(jsonPath("$[0].fecha").value("2026-05-06"))
+                .andExpect(jsonPath("$[0].dueTime").value("11:00"))
                 .andExpect(jsonPath("$[1].titulo").value("T2"));
     }
 
@@ -61,6 +66,10 @@ class TaskControllerTest {
         TaskDto request = TaskDto.builder()
                 .titulo("Tarea nueva")
                 .descripcion("Detalle")
+                .tipo("MANTENCION")
+                .prioridad("ALTA")
+                .fecha(LocalDate.of(2026, 5, 8))
+                .dueTime("15:00")
                 .apartmentId(1L)
                 .statusId(2L)
                 .build();
@@ -69,6 +78,10 @@ class TaskControllerTest {
                 .id(10L)
                 .titulo("Tarea nueva")
                 .descripcion("Detalle")
+                .tipo("MANTENCION")
+                .prioridad("ALTA")
+                .fecha(LocalDate.of(2026, 5, 8))
+                .dueTime("15:00")
                 .apartmentId(1L)
                 .statusId(2L)
                 .build();
@@ -81,7 +94,11 @@ class TaskControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.mensaje").value("Tarea generada correctamente"))
                 .andExpect(jsonPath("$.tarea.id").value(10))
-                .andExpect(jsonPath("$.tarea.titulo").value("Tarea nueva"));
+                .andExpect(jsonPath("$.tarea.titulo").value("Tarea nueva"))
+                .andExpect(jsonPath("$.tarea.tipo").value("MANTENCION"))
+                .andExpect(jsonPath("$.tarea.prioridad").value("ALTA"))
+                .andExpect(jsonPath("$.tarea.fecha").value("2026-05-08"))
+                .andExpect(jsonPath("$.tarea.dueTime").value("15:00"));
     }
 
     @Test
@@ -100,12 +117,16 @@ class TaskControllerTest {
 
     @Test
     void getTaskOk() throws Exception {
-        when(service.getTaskById(5L)).thenReturn(TaskDto.builder().id(5L).titulo("T5").build());
+        when(service.getTaskById(5L)).thenReturn(TaskDto.builder().id(5L).titulo("T5").tipo("INSPECCION").prioridad("MEDIA").fecha(LocalDate.of(2026, 5, 10)).dueTime("13:00").build());
 
         mockMvc.perform(get("/api/v1/tasks/5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(5))
-                .andExpect(jsonPath("$.titulo").value("T5"));
+                .andExpect(jsonPath("$.titulo").value("T5"))
+                .andExpect(jsonPath("$.tipo").value("INSPECCION"))
+                .andExpect(jsonPath("$.prioridad").value("MEDIA"))
+                .andExpect(jsonPath("$.fecha").value("2026-05-10"))
+                .andExpect(jsonPath("$.dueTime").value("13:00"));
     }
 
     @Test
@@ -119,8 +140,8 @@ class TaskControllerTest {
 
     @Test
     void updateTaskOk() throws Exception {
-        TaskDto request = TaskDto.builder().titulo("Nueva").descripcion("Desc").build();
-        TaskDto updated = TaskDto.builder().id(7L).titulo("Nueva").descripcion("Desc").build();
+        TaskDto request = TaskDto.builder().titulo("Nueva").descripcion("Desc").tipo("LIMPIEZA").prioridad("URGENTE").fecha(LocalDate.of(2026, 5, 11)).dueTime("09:30").build();
+        TaskDto updated = TaskDto.builder().id(7L).titulo("Nueva").descripcion("Desc").tipo("LIMPIEZA").prioridad("URGENTE").fecha(LocalDate.of(2026, 5, 11)).dueTime("09:30").build();
 
         when(service.updateTask(eq(7L), any(TaskDto.class))).thenReturn(updated);
 
@@ -130,7 +151,11 @@ class TaskControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value("Tarea actualizada"))
                 .andExpect(jsonPath("$.tarea.id").value(7))
-                .andExpect(jsonPath("$.tarea.titulo").value("Nueva"));
+                .andExpect(jsonPath("$.tarea.titulo").value("Nueva"))
+                .andExpect(jsonPath("$.tarea.tipo").value("LIMPIEZA"))
+                .andExpect(jsonPath("$.tarea.prioridad").value("URGENTE"))
+                .andExpect(jsonPath("$.tarea.fecha").value("2026-05-11"))
+                .andExpect(jsonPath("$.tarea.dueTime").value("09:30"));
     }
 
     @Test

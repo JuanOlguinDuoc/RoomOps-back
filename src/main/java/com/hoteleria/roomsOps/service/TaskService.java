@@ -58,6 +58,10 @@ public class TaskService {
                 .map(existingTask -> {
                     existingTask.setTitulo(taskDto.getTitulo());
                     existingTask.setDescripcion(taskDto.getDescripcion());
+                    existingTask.setTipo(taskDto.getTipo());
+                    existingTask.setPrioridad(taskDto.getPrioridad());
+                    existingTask.setFecha(taskDto.getFecha());
+                    existingTask.setDueTime(taskDto.getDueTime());
                     applyRelations(existingTask, taskDto, false);
                     existingTask.setChecklist(copyChecklist(taskDto.getChecklist()));
                     existingTask = taskRepo.save(existingTask);
