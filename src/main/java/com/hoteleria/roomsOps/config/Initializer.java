@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 import com.hoteleria.roomsOps.model.Role;
 import com.hoteleria.roomsOps.model.User;
 import com.hoteleria.roomsOps.model.Status;
+import com.hoteleria.roomsOps.model.Apartment;
 import com.hoteleria.roomsOps.repository.RoleRepo;
 import com.hoteleria.roomsOps.repository.UserRepo;
 import com.hoteleria.roomsOps.repository.StatusRepo;
-
+import com.hoteleria.roomsOps.repository.ApartmentRepo;
 @Component
 public class Initializer implements CommandLineRunner {
 
@@ -26,6 +27,9 @@ public class Initializer implements CommandLineRunner {
     private StatusRepo statusRepo;
 
     @Autowired
+    private ApartmentRepo apartmentRepo;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
@@ -35,11 +39,10 @@ public class Initializer implements CommandLineRunner {
         createRoleIfNotExists("SUPERVISOR");
         createRoleIfNotExists("TRABAJADOR");
 
-        //Creacion de estados por defecto si no existen
+        // Creacion de estados por defecto si no existen
         createStatusIfNotExists("Por Hacer");
         createStatusIfNotExists("Completado");
         createStatusIfNotExists("En progreso");
-
 
         // Crear usuarios por defecto si no existen
         createUserIfNotExists("00000000-0", "admin", "admin", "admin@duoc.cl", "admin123", "ADMINISTRADOR");
@@ -47,6 +50,10 @@ public class Initializer implements CommandLineRunner {
                 "SUPERVISOR");
         createUserIfNotExists("00000000-2", "trabajador", "trabajador", "trabajador@duoc.cl", "trabajador123",
                 "TRABAJADOR");
+
+        createApartmentIfNotExists("A101", 1, true);
+        createApartmentIfNotExists("B202", 2, true);
+        createApartmentIfNotExists("C303", 3, false);
 
         System.out.println("✓ Datos inicializados correctamente");
     }
@@ -87,5 +94,17 @@ public class Initializer implements CommandLineRunner {
         }
     }
 
-    
+    private void createApartmentIfNotExists(String name, Integer piso, Boolean activo) {
+        if (apartmentRepo.findByNombre(name).isEmpty()) {
+            Apartment apartment = new Apartment();
+            
+            apartment.setNombre(name);
+            apartment.setPiso(piso);
+            apartment.setActivo(activo);
+
+            apartmentRepo.save(apartment);
+            System.out.println("✓ Apartamenot creado: " + name);
+        }
+    }
+
 }
