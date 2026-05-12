@@ -9,12 +9,16 @@ import org.springframework.stereotype.Component;
 import com.hoteleria.roomsOps.model.Role;
 import com.hoteleria.roomsOps.model.User;
 import com.hoteleria.roomsOps.model.Status;
+import com.hoteleria.roomsOps.model.Apartment;
+import com.hoteleria.roomsOps.repository.ApartmentRepo;
 import com.hoteleria.roomsOps.repository.RoleRepo;
 import com.hoteleria.roomsOps.repository.UserRepo;
 import com.hoteleria.roomsOps.repository.StatusRepo;
 
 @Component
 public class Initializer implements CommandLineRunner {
+
+    private final ApartmentRepo apartmentRepo;
 
     @Autowired
     private RoleRepo roleRepo;
@@ -27,6 +31,10 @@ public class Initializer implements CommandLineRunner {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    Initializer(ApartmentRepo apartmentRepo) {
+        this.apartmentRepo = apartmentRepo;
+    }
 
     @Override
     public void run(String... args) throws Exception {
@@ -47,6 +55,10 @@ public class Initializer implements CommandLineRunner {
                 "SUPERVISOR");
         createUserIfNotExists("00000000-2", "trabajador", "trabajador", "trabajador@duoc.cl", "trabajador123",
                 "TRABAJADOR");
+
+        createApartmentIfNotExists("A101", 1, true);
+        createApartmentIfNotExists("A102", 2, true);
+        createApartmentIfNotExists("A103", 3, true);
 
         System.out.println("✓ Datos inicializados correctamente");
     }
@@ -87,5 +99,15 @@ public class Initializer implements CommandLineRunner {
         }
     }
 
+    private void createApartmentIfNotExists(String nombre, Integer piso, Boolean activo) {
+        if (apartmentRepo.findByNombre(nombre).isEmpty()) {
+            Apartment apartment = new Apartment();
+            apartment.setNombre(nombre);
+            apartment.setPiso(piso);
+            apartment.setActivo(activo);
+            apartmentRepo.save(apartment);
+            System.out.println("✓ Departamento creado: " + nombre);
+        }
+    }
     
 }
