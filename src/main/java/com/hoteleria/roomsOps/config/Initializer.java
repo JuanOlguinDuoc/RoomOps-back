@@ -10,15 +10,12 @@ import com.hoteleria.roomsOps.model.Role;
 import com.hoteleria.roomsOps.model.User;
 import com.hoteleria.roomsOps.model.Status;
 import com.hoteleria.roomsOps.model.Apartment;
-import com.hoteleria.roomsOps.repository.ApartmentRepo;
 import com.hoteleria.roomsOps.repository.RoleRepo;
 import com.hoteleria.roomsOps.repository.UserRepo;
 import com.hoteleria.roomsOps.repository.StatusRepo;
-
+import com.hoteleria.roomsOps.repository.ApartmentRepo;
 @Component
 public class Initializer implements CommandLineRunner {
-
-    private final ApartmentRepo apartmentRepo;
 
     @Autowired
     private RoleRepo roleRepo;
@@ -30,11 +27,10 @@ public class Initializer implements CommandLineRunner {
     private StatusRepo statusRepo;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private ApartmentRepo apartmentRepo;
 
-    Initializer(ApartmentRepo apartmentRepo) {
-        this.apartmentRepo = apartmentRepo;
-    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
@@ -43,11 +39,11 @@ public class Initializer implements CommandLineRunner {
         createRoleIfNotExists("SUPERVISOR");
         createRoleIfNotExists("TRABAJADOR");
 
-        //Creacion de estados por defecto si no existen
+        // Creacion de estados por defecto si no existen
         createStatusIfNotExists("Por Hacer");
         createStatusIfNotExists("Completado");
         createStatusIfNotExists("En progreso");
-
+        createStatusIfNotExists("Bloqueado");
 
         // Crear usuarios por defecto si no existen
         createUserIfNotExists("00000000-0", "admin", "admin", "admin@duoc.cl", "admin123", "ADMINISTRADOR");
@@ -57,8 +53,8 @@ public class Initializer implements CommandLineRunner {
                 "TRABAJADOR");
 
         createApartmentIfNotExists("A101", 1, true);
-        createApartmentIfNotExists("A102", 2, true);
-        createApartmentIfNotExists("A103", 3, true);
+        createApartmentIfNotExists("B202", 2, true);
+        createApartmentIfNotExists("C303", 3, false);
 
         System.out.println("✓ Datos inicializados correctamente");
     }
@@ -99,15 +95,17 @@ public class Initializer implements CommandLineRunner {
         }
     }
 
-    private void createApartmentIfNotExists(String nombre, Integer piso, Boolean activo) {
-        if (apartmentRepo.findByNombre(nombre).isEmpty()) {
+    private void createApartmentIfNotExists(String name, Integer piso, Boolean activo) {
+        if (apartmentRepo.findByNombre(name).isEmpty()) {
             Apartment apartment = new Apartment();
-            apartment.setNombre(nombre);
+            
+            apartment.setNombre(name);
             apartment.setPiso(piso);
             apartment.setActivo(activo);
+
             apartmentRepo.save(apartment);
-            System.out.println("✓ Departamento creado: " + nombre);
+            System.out.println("✓ Apartamenot creado: " + name);
         }
     }
-    
+
 }
