@@ -43,6 +43,7 @@ public class Initializer implements CommandLineRunner {
         createStatusIfNotExists("Por Hacer");
         createStatusIfNotExists("Completado");
         createStatusIfNotExists("En progreso");
+        createStatusIfNotExists("Bloqueado");
 
         // Crear usuarios por defecto si no existen
         createUserIfNotExists("00000000-0", "admin", "admin", "admin@duoc.cl", "admin123", "ADMINISTRADOR");
