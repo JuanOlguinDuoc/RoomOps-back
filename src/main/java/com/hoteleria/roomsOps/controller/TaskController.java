@@ -19,19 +19,40 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hoteleria.roomsOps.dto.TaskDto;
 import com.hoteleria.roomsOps.service.TaskService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("api/v1/tasks")
+@Tag(name = "Tasks", description = "Gestion de tareas")
 public class TaskController {
 
 	@Autowired
 	private TaskService taskService;
 
 	@GetMapping
+	@Operation(summary = "Listar tareas", description = "Obtiene el listado completo de tareas")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Listado obtenido correctamente", content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskDto.class)))),
+			@ApiResponse(responseCode = "401", description = "No autenticado", content = @Content)
+	})
 	public List<TaskDto> listTasks() {
 		return taskService.getAllTasks();
 	}
 
 	@PostMapping
+	@Operation(summary = "Crear tarea", description = "Crea una nueva tarea para un apartamento")
+	@io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Datos de la tarea a crear", content = @Content(schema = @Schema(implementation = TaskDto.class)))
+	@ApiResponses({
+			@ApiResponse(responseCode = "201", description = "Tarea creada", content = @Content(schema = @Schema(implementation = com.hoteleria.roomsOps.config.ApiSchemas.TaskEnvelopeResponse.class))),
+			@ApiResponse(responseCode = "400", description = "Datos invalidos", content = @Content(schema = @Schema(implementation = com.hoteleria.roomsOps.config.ApiSchemas.ErrorMensajeResponse.class))),
+			@ApiResponse(responseCode = "401", description = "No autenticado", content = @Content)
+	})
 	public ResponseEntity<Map<String, Object>> createTask(@RequestBody TaskDto dto) {
 		Map<String, Object> response = new HashMap<>();
 		try {
@@ -47,6 +68,12 @@ public class TaskController {
 	}
 
 	@GetMapping("/{id}")
+	@Operation(summary = "Obtener tarea por id", description = "Busca una tarea por su identificador")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Tarea encontrada", content = @Content(schema = @Schema(implementation = TaskDto.class))),
+			@ApiResponse(responseCode = "404", description = "Tarea no encontrada", content = @Content(schema = @Schema(implementation = com.hoteleria.roomsOps.config.ApiSchemas.MensajeResponse.class))),
+			@ApiResponse(responseCode = "401", description = "No autenticado", content = @Content)
+	})
 	public ResponseEntity<Object> getTask(@PathVariable Long id) {
 		TaskDto dto = taskService.getTaskById(id);
 		if (dto == null) {
@@ -58,6 +85,14 @@ public class TaskController {
 	}
 
 	@PutMapping("/{id}")
+	@Operation(summary = "Actualizar tarea", description = "Actualiza completamente una tarea existente")
+	@io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Datos actualizados de la tarea", content = @Content(schema = @Schema(implementation = TaskDto.class)))
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Tarea actualizada", content = @Content(schema = @Schema(implementation = com.hoteleria.roomsOps.config.ApiSchemas.TaskEnvelopeResponse.class))),
+			@ApiResponse(responseCode = "400", description = "No fue posible actualizar la tarea", content = @Content(schema = @Schema(implementation = com.hoteleria.roomsOps.config.ApiSchemas.ErrorMensajeResponse.class))),
+			@ApiResponse(responseCode = "404", description = "Tarea no encontrada", content = @Content(schema = @Schema(implementation = com.hoteleria.roomsOps.config.ApiSchemas.MensajeResponse.class))),
+			@ApiResponse(responseCode = "401", description = "No autenticado", content = @Content)
+	})
 	public ResponseEntity<Object> updateTask(@PathVariable Long id, @RequestBody TaskDto dto) {
 		try {
 			TaskDto updated = taskService.updateTask(id, dto);
@@ -75,6 +110,12 @@ public class TaskController {
 	}
 
 	@DeleteMapping("/{id}")
+	@Operation(summary = "Eliminar tarea", description = "Elimina una tarea por su identificador")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Tarea eliminada", content = @Content(schema = @Schema(implementation = com.hoteleria.roomsOps.config.ApiSchemas.MensajeResponse.class))),
+			@ApiResponse(responseCode = "400", description = "No fue posible eliminar la tarea", content = @Content(schema = @Schema(implementation = com.hoteleria.roomsOps.config.ApiSchemas.ErrorMensajeResponse.class))),
+			@ApiResponse(responseCode = "401", description = "No autenticado", content = @Content)
+	})
 	public ResponseEntity<Object> deleteTask(@PathVariable Long id) {
 		try {
 			taskService.deleteTask(id);

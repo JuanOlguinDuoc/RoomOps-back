@@ -17,8 +17,16 @@ import com.hoteleria.roomsOps.dto.UserDto;
 import com.hoteleria.roomsOps.model.User;
 import com.hoteleria.roomsOps.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("api/v1/auth")
+@Tag(name = "Auth", description = "Autenticacion y obtencion de JWT")
 public class AuthController {
 
     @Autowired
@@ -31,6 +39,13 @@ public class AuthController {
     private JwtUtil jwt;
 
     @PostMapping("/login")
+        @Operation(summary = "Iniciar sesion", description = "Autentica un usuario y devuelve un token JWT", security = {})
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Credenciales del usuario", content = @Content(schema = @Schema(implementation = com.hoteleria.roomsOps.config.ApiSchemas.AuthLoginRequest.class)))
+        @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Autenticacion exitosa", content = @Content(schema = @Schema(implementation = com.hoteleria.roomsOps.config.ApiSchemas.AuthLoginResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Email o password faltantes", content = @Content(schema = @Schema(implementation = com.hoteleria.roomsOps.config.ApiSchemas.MensajeResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Credenciales invalidas", content = @Content(schema = @Schema(implementation = com.hoteleria.roomsOps.config.ApiSchemas.MensajeResponse.class)))
+        })
     public ResponseEntity<Object> login(@RequestBody Map<String, String> payload) {
         String email = payload.get("email");
         String password = payload.get("password");

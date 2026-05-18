@@ -27,7 +27,14 @@ public class SecurityConfig {
     .cors(cors -> cors.configurationSource(corsConfigurationSource()))
     .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
     .authorizeHttpRequests(auth -> auth
-      .requestMatchers("/api/v1/auth/**", "/database/**", "/h2-console/**").permitAll()
+      .requestMatchers(
+        "/api/v1/auth/**",
+        "/database/**",
+        "/h2-console/**",
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
+        "/swagger-ui.html")
+      .permitAll()
       .requestMatchers(HttpMethod.GET, "/api/v1/users/**")
       .hasAnyRole("ADMINISTRADOR", "SUPERVISOR")
       .requestMatchers(HttpMethod.POST, "/api/v1/users/**")

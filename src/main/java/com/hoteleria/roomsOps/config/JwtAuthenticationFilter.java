@@ -40,7 +40,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
         // Skip filter for auth endpoints (login/register) and H2 console
-        if (path.startsWith("/api/v1/auth") || path.startsWith("/h2-console") || path.startsWith("/swagger-ui")) {
+        if (path.startsWith("/api/v1/auth")
+            || path.startsWith("/h2-console")
+            || path.startsWith("/swagger-ui")
+            || path.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }

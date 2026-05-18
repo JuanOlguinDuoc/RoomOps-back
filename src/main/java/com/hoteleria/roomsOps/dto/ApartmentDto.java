@@ -6,14 +6,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.hoteleria.roomsOps.model.Apartment;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(name = "Apartment", description = "Representa un apartamento del hotel")
 public class ApartmentDto {
+    @Schema(description = "Identificador del apartamento", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
+
+    @Schema(description = "Nombre o codigo visible del apartamento", example = "A101")
     private String nombre;
+
+    @Schema(description = "Numero de piso donde se ubica el apartamento", example = "1")
     private Integer piso;
+
+    @Schema(description = "Indica si el apartamento se encuentra activo", example = "true")
     private Boolean activo;
 
     public static ApartmentDto fromEntity (Apartment apartment){
