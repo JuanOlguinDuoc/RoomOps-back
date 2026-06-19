@@ -52,9 +52,26 @@ public class Initializer implements CommandLineRunner {
         createUserIfNotExists("00000000-2", "trabajador", "trabajador", "trabajador@duoc.cl", "trabajador123",
                 "TRABAJADOR");
 
-        createApartmentIfNotExists("A101", 1, true);
-        createApartmentIfNotExists("B202", 2, true);
-        createApartmentIfNotExists("C303", 3, false);
+        // Completar hasta 15 usuarios de prueba
+        for (int i = 3; i < 15; i++) {
+            String run = String.format("%08d-%d", i, i % 10);
+            String firstName = "usuario" + i;
+            String lastName = "demo" + i;
+            String email = "usuario" + i + "@duoc.cl";
+            String password = "user" + i + "123";
+            String roleName = (i % 5 == 0) ? "SUPERVISOR" : "TRABAJADOR";
+
+            createUserIfNotExists(run, firstName, lastName, email, password, roleName);
+        }
+
+        // Crear 28 departamentos de prueba (4 torres x 7 pisos)
+        char[] torres = { 'A', 'B', 'C', 'D' };
+        for (char torre : torres) {
+            for (int piso = 1; piso <= 7; piso++) {
+                String nombre = String.format("%c%d01", torre, piso);
+                createApartmentIfNotExists(nombre, piso, true);
+            }
+        }
 
         System.out.println("✓ Datos inicializados correctamente");
     }
